@@ -788,11 +788,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#EDEAE1]">
       {/* Sticky search bar */}
-      <div className="sticky top-0 z-30 bg-[#15171c]/95 backdrop-blur-sm border-b border-white/10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <SmartSearchBar />
-        </div>
-      </div>
+      
 
       {/* Editorial Hero Band */}
       <div className="bg-[#15171c] pb-10 sm:pb-14">

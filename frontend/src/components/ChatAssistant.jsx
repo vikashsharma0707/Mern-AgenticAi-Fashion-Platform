@@ -1,3 +1,175 @@
+// // // // // // // // // frontend/src/components/ChatAssistant.jsx
+// // // // // // // // import React, { useState } from "react";
+// // // // // // // // import http from "../api/http.js";
+// // // // // // // // import { toast } from "react-toastify";
+// // // // // // // // import "./ChatAssistant.css";
+
+// // // // // // // // const AGENT_CARDS = [
+// // // // // // // //   {
+// // // // // // // //     id: "chat-to-order",
+// // // // // // // //     icon: "🛍️",
+// // // // // // // //     title: "Chat to Order",
+// // // // // // // //     prompt: "Nylon T Shirt for Men order kar do size M",
+// // // // // // // //   },
+// // // // // // // //   {
+// // // // // // // //     id: "personal-stylist",
+// // // // // // // //     icon: "👗",
+// // // // // // // //     title: "Personal Stylist",
+// // // // // // // //     prompt: "Wedding ke liye outfit suggest karo",
+// // // // // // // //   },
+// // // // // // // //   {
+// // // // // // // //     id: "size-advisor",
+// // // // // // // //     icon: "📏",
+// // // // // // // //     title: "Size Advisor",
+// // // // // // // //     prompt: "Size advisor for height 5'8\" weight 70kg",
+// // // // // // // //   },
+// // // // // // // //   {
+// // // // // // // //     id: "visual-search",
+// // // // // // // //     icon: "🔍",
+// // // // // // // //     title: "Visual Search",
+// // // // // // // //     prompt: "Find similar products",
+// // // // // // // //   },
+// // // // // // // // ];
+
+// // // // // // // // const ChatAssistant = ({ isOpen, onClose }) => {
+// // // // // // // //   const [messages, setMessages] = useState([
+// // // // // // // //     { type: "bot", text: "Hi! Click any agent card below or type your request." }
+// // // // // // // //   ]);
+// // // // // // // //   const [input, setInput] = useState("");
+// // // // // // // //   const [loading, setLoading] = useState(false);
+
+// // // // // // // //   // 🔥 CLICK AGENT CARD → DIRECTLY RUN AGENT
+// // // // // // // //   const handleAgentClick = async (agent) => {
+// // // // // // // //     const userMessage = agent.prompt;
+
+// // // // // // // //     setMessages(prev => [...prev, { type: "user", text: userMessage }]);
+// // // // // // // //     setLoading(true);
+
+// // // // // // // //     try {
+// // // // // // // //       const { data } = await http.post("/api/ai/assistant", { 
+// // // // // // // //         message: userMessage 
+// // // // // // // //       });
+
+// // // // // // // //       setMessages(prev => [...prev, { 
+// // // // // // // //         type: "bot", 
+// // // // // // // //         text: data.reply 
+// // // // // // // //       }]);
+
+// // // // // // // //       // Handle Razorpay if returned
+// // // // // // // //       if (data.action === "open_razorpay" && data.paymentData) {
+// // // // // // // //         openRazorpay(data.paymentData);
+// // // // // // // //       }
+// // // // // // // //     } catch (err) {
+// // // // // // // //       console.error(err);
+// // // // // // // //       toast.error("Agent failed. Please try again.");
+// // // // // // // //       setMessages(prev => [...prev, { 
+// // // // // // // //         type: "bot", 
+// // // // // // // //         text: "Sorry, something went wrong. Try typing manually." 
+// // // // // // // //       }]);
+// // // // // // // //     } finally {
+// // // // // // // //       setLoading(false);
+// // // // // // // //     }
+// // // // // // // //   };
+
+// // // // // // // //   const sendMessage = async () => {
+// // // // // // // //     if (!input.trim() || loading) return;
+// // // // // // // //     const userMessage = input.trim();
+// // // // // // // //     setMessages(prev => [...prev, { type: "user", text: userMessage }]);
+// // // // // // // //     setInput("");
+// // // // // // // //     setLoading(true);
+
+// // // // // // // //     try {
+// // // // // // // //       const { data } = await http.post("/api/ai/assistant", { message: userMessage });
+// // // // // // // //       setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
+
+// // // // // // // //       if (data.action === "open_razorpay" && data.paymentData) {
+// // // // // // // //         openRazorpay(data.paymentData);
+// // // // // // // //       }
+// // // // // // // //     } catch (err) {
+// // // // // // // //       toast.error("AI Assistant error");
+// // // // // // // //     } finally {
+// // // // // // // //       setLoading(false);
+// // // // // // // //     }
+// // // // // // // //   };
+
+// // // // // // // //   const openRazorpay = (paymentData) => {
+// // // // // // // //     const script = document.createElement("script");
+// // // // // // // //     script.src = "https://checkout.razorpay.com/v1/checkout.js";
+// // // // // // // //     script.onload = () => {
+// // // // // // // //       const options = {
+// // // // // // // //         key: paymentData.key,
+// // // // // // // //         amount: paymentData.amount,
+// // // // // // // //         currency: "INR",
+// // // // // // // //         order_id: paymentData.order_id,
+// // // // // // // //         name: "Myntra Clone",
+// // // // // // // //         description: "AI Order",
+// // // // // // // //         handler: () => toast.success("Payment Successful! Order Placed."),
+// // // // // // // //       };
+// // // // // // // //       new window.Razorpay(options).open();
+// // // // // // // //     };
+// // // // // // // //     document.body.appendChild(script);
+// // // // // // // //   };
+
+// // // // // // // //   return (
+// // // // // // // //     <div className={`chat-assistant ${isOpen ? 'open' : ''}`}>
+// // // // // // // //       <div className="chat-header">
+// // // // // // // //         <div>
+// // // // // // // //           <h3>🤖 AI Shopping Assistant</h3>
+// // // // // // // //           <p>One chat, Multiple Fashion Agents</p>
+// // // // // // // //         </div>
+// // // // // // // //         <button className="close-btn" onClick={onClose}>✕</button>
+// // // // // // // //       </div>
+
+// // // // // // // //       {/* Agent Cards - Click to Run */}
+// // // // // // // //       <div className="agents-grid">
+// // // // // // // //         {AGENT_CARDS.map((agent) => (
+// // // // // // // //           <div
+// // // // // // // //             key={agent.id}
+// // // // // // // //             className="agent-card"
+// // // // // // // //             onClick={() => handleAgentClick(agent)}
+// // // // // // // //           >
+// // // // // // // //             <div className="agent-icon">{agent.icon}</div>
+// // // // // // // //             <div className="agent-content">
+// // // // // // // //               <h4>{agent.title}</h4>
+// // // // // // // //               <p>{agent.prompt}</p>
+// // // // // // // //             </div>
+// // // // // // // //           </div>
+// // // // // // // //         ))}
+// // // // // // // //       </div>
+
+// // // // // // // //       {/* Messages Area */}
+// // // // // // // //       <div className="chat-messages">
+// // // // // // // //         {messages.map((msg, i) => (
+// // // // // // // //           <div key={i} className={`message ${msg.type}`}>
+// // // // // // // //             {msg.text}
+// // // // // // // //           </div>
+// // // // // // // //         ))}
+// // // // // // // //         {loading && <div className="message bot">AI Agent is working...</div>}
+// // // // // // // //       </div>
+
+// // // // // // // //       {/* Input Area */}
+// // // // // // // //       <div className="chat-input">
+// // // // // // // //         <input
+// // // // // // // //           value={input}
+// // // // // // // //           onChange={(e) => setInput(e.target.value)}
+// // // // // // // //           onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+// // // // // // // //           placeholder="Type your request... (Hindi / English)"
+// // // // // // // //         />
+// // // // // // // //         <button onClick={sendMessage} disabled={loading || !input.trim()}>
+// // // // // // // //           Send
+// // // // // // // //         </button>
+// // // // // // // //       </div>
+// // // // // // // //     </div>
+// // // // // // // //   );
+// // // // // // // // };
+
+// // // // // // // // export default ChatAssistant;
+
+
+
+
+
+
 // // // // // // // // frontend/src/components/ChatAssistant.jsx
 // // // // // // // import React, { useState } from "react";
 // // // // // // // import http from "../api/http.js";
@@ -9,25 +181,25 @@
 // // // // // // //     id: "chat-to-order",
 // // // // // // //     icon: "🛍️",
 // // // // // // //     title: "Chat to Order",
-// // // // // // //     prompt: "Nylon T Shirt for Men order kar do size M",
+// // // // // // //     desc: "Nylon T Shirt for Men order kar do size M",
 // // // // // // //   },
 // // // // // // //   {
 // // // // // // //     id: "personal-stylist",
 // // // // // // //     icon: "👗",
 // // // // // // //     title: "Personal Stylist",
-// // // // // // //     prompt: "Wedding ke liye outfit suggest karo",
+// // // // // // //     desc: "Wedding ke liye outfit suggest karo",
 // // // // // // //   },
 // // // // // // //   {
 // // // // // // //     id: "size-advisor",
 // // // // // // //     icon: "📏",
 // // // // // // //     title: "Size Advisor",
-// // // // // // //     prompt: "Size advisor for height 5'8\" weight 70kg",
+// // // // // // //     desc: "Size advisor for height 5'8\" weight 70kg",
 // // // // // // //   },
 // // // // // // //   {
 // // // // // // //     id: "visual-search",
 // // // // // // //     icon: "🔍",
 // // // // // // //     title: "Visual Search",
-// // // // // // //     prompt: "Find similar products",
+// // // // // // //     desc: "Find similar products",
 // // // // // // //   },
 // // // // // // // ];
 
@@ -38,11 +210,37 @@
 // // // // // // //   const [input, setInput] = useState("");
 // // // // // // //   const [loading, setLoading] = useState(false);
 
-// // // // // // //   // 🔥 CLICK AGENT CARD → DIRECTLY RUN AGENT
+// // // // // // //   // ================== AGENT CARD CLICK → SHOW DRAFT ==================
 // // // // // // //   const handleAgentClick = async (agent) => {
-// // // // // // //     const userMessage = agent.prompt;
+// // // // // // //     setLoading(true);
+// // // // // // //     try {
+// // // // // // //       const { data } = await http.post("/api/ai/draft", { 
+// // // // // // //         agentType: agent.id 
+// // // // // // //       });
 
+// // // // // // //       // Show draft in input box (User can edit)
+// // // // // // //       setInput(data.message || agent.desc);
+      
+// // // // // // //       setMessages(prev => [...prev, { 
+// // // // // // //         type: "bot", 
+// // // // // // //         text: `Draft ready for "${agent.title}". Edit if needed and click Send.` 
+// // // // // // //       }]);
+// // // // // // //     } catch (err) {
+// // // // // // //       console.error(err);
+// // // // // // //       setInput(agent.desc);
+// // // // // // //       toast.info("Draft loaded (fallback)");
+// // // // // // //     } finally {
+// // // // // // //       setLoading(false);
+// // // // // // //     }
+// // // // // // //   };
+
+// // // // // // //   // ================== SEND MESSAGE → REAL EXECUTION ==================
+// // // // // // //   const sendMessage = async () => {
+// // // // // // //     if (!input.trim() || loading) return;
+
+// // // // // // //     const userMessage = input.trim();
 // // // // // // //     setMessages(prev => [...prev, { type: "user", text: userMessage }]);
+// // // // // // //     setInput("");
 // // // // // // //     setLoading(true);
 
 // // // // // // //     try {
@@ -55,38 +253,16 @@
 // // // // // // //         text: data.reply 
 // // // // // // //       }]);
 
-// // // // // // //       // Handle Razorpay if returned
 // // // // // // //       if (data.action === "open_razorpay" && data.paymentData) {
 // // // // // // //         openRazorpay(data.paymentData);
 // // // // // // //       }
 // // // // // // //     } catch (err) {
 // // // // // // //       console.error(err);
-// // // // // // //       toast.error("Agent failed. Please try again.");
+// // // // // // //       toast.error("AI Assistant error");
 // // // // // // //       setMessages(prev => [...prev, { 
 // // // // // // //         type: "bot", 
-// // // // // // //         text: "Sorry, something went wrong. Try typing manually." 
+// // // // // // //         text: "Something went wrong. Please try again." 
 // // // // // // //       }]);
-// // // // // // //     } finally {
-// // // // // // //       setLoading(false);
-// // // // // // //     }
-// // // // // // //   };
-
-// // // // // // //   const sendMessage = async () => {
-// // // // // // //     if (!input.trim() || loading) return;
-// // // // // // //     const userMessage = input.trim();
-// // // // // // //     setMessages(prev => [...prev, { type: "user", text: userMessage }]);
-// // // // // // //     setInput("");
-// // // // // // //     setLoading(true);
-
-// // // // // // //     try {
-// // // // // // //       const { data } = await http.post("/api/ai/assistant", { message: userMessage });
-// // // // // // //       setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
-
-// // // // // // //       if (data.action === "open_razorpay" && data.paymentData) {
-// // // // // // //         openRazorpay(data.paymentData);
-// // // // // // //       }
-// // // // // // //     } catch (err) {
-// // // // // // //       toast.error("AI Assistant error");
 // // // // // // //     } finally {
 // // // // // // //       setLoading(false);
 // // // // // // //     }
@@ -103,7 +279,7 @@
 // // // // // // //         order_id: paymentData.order_id,
 // // // // // // //         name: "Myntra Clone",
 // // // // // // //         description: "AI Order",
-// // // // // // //         handler: () => toast.success("Payment Successful! Order Placed."),
+// // // // // // //         handler: () => toast.success("✅ Payment Successful!"),
 // // // // // // //       };
 // // // // // // //       new window.Razorpay(options).open();
 // // // // // // //     };
@@ -120,7 +296,7 @@
 // // // // // // //         <button className="close-btn" onClick={onClose}>✕</button>
 // // // // // // //       </div>
 
-// // // // // // //       {/* Agent Cards - Click to Run */}
+// // // // // // //       {/* Agent Cards */}
 // // // // // // //       <div className="agents-grid">
 // // // // // // //         {AGENT_CARDS.map((agent) => (
 // // // // // // //           <div
@@ -131,31 +307,34 @@
 // // // // // // //             <div className="agent-icon">{agent.icon}</div>
 // // // // // // //             <div className="agent-content">
 // // // // // // //               <h4>{agent.title}</h4>
-// // // // // // //               <p>{agent.prompt}</p>
+// // // // // // //               <p>{agent.desc}</p>
 // // // // // // //             </div>
 // // // // // // //           </div>
 // // // // // // //         ))}
 // // // // // // //       </div>
 
-// // // // // // //       {/* Messages Area */}
+// // // // // // //       {/* Messages */}
 // // // // // // //       <div className="chat-messages">
 // // // // // // //         {messages.map((msg, i) => (
 // // // // // // //           <div key={i} className={`message ${msg.type}`}>
 // // // // // // //             {msg.text}
 // // // // // // //           </div>
 // // // // // // //         ))}
-// // // // // // //         {loading && <div className="message bot">AI Agent is working...</div>}
+// // // // // // //         {loading && <div className="message bot">Thinking...</div>}
 // // // // // // //       </div>
 
-// // // // // // //       {/* Input Area */}
+// // // // // // //       {/* Input */}
 // // // // // // //       <div className="chat-input">
 // // // // // // //         <input
 // // // // // // //           value={input}
 // // // // // // //           onChange={(e) => setInput(e.target.value)}
 // // // // // // //           onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-// // // // // // //           placeholder="Type your request... (Hindi / English)"
+// // // // // // //           placeholder="Edit draft and press Send... (Hindi / English)"
 // // // // // // //         />
-// // // // // // //         <button onClick={sendMessage} disabled={loading || !input.trim()}>
+// // // // // // //         <button 
+// // // // // // //           onClick={sendMessage} 
+// // // // // // //           disabled={loading || !input.trim()}
+// // // // // // //         >
 // // // // // // //           Send
 // // // // // // //         </button>
 // // // // // // //       </div>
@@ -164,8 +343,6 @@
 // // // // // // // };
 
 // // // // // // // export default ChatAssistant;
-
-
 
 
 
@@ -196,10 +373,10 @@
 // // // // // //     desc: "Size advisor for height 5'8\" weight 70kg",
 // // // // // //   },
 // // // // // //   {
-// // // // // //     id: "visual-search",
-// // // // // //     icon: "🔍",
-// // // // // //     title: "Visual Search",
-// // // // // //     desc: "Find similar products",
+// // // // // //     id: "order-delivery",
+// // // // // //     icon: "📦",
+// // // // // //     title: "Order Tracking",
+// // // // // //     desc: "Mera order kab tak aayega?",
 // // // // // //   },
 // // // // // // ];
 
@@ -210,31 +387,33 @@
 // // // // // //   const [input, setInput] = useState("");
 // // // // // //   const [loading, setLoading] = useState(false);
 
-// // // // // //   // ================== AGENT CARD CLICK → SHOW DRAFT ==================
+// // // // // //   // Draft for Agent Cards
 // // // // // //   const handleAgentClick = async (agent) => {
 // // // // // //     setLoading(true);
 // // // // // //     try {
-// // // // // //       const { data } = await http.post("/api/ai/draft", { 
-// // // // // //         agentType: agent.id 
-// // // // // //       });
-
-// // // // // //       // Show draft in input box (User can edit)
-// // // // // //       setInput(data.message || agent.desc);
-      
-// // // // // //       setMessages(prev => [...prev, { 
-// // // // // //         type: "bot", 
-// // // // // //         text: `Draft ready for "${agent.title}". Edit if needed and click Send.` 
-// // // // // //       }]);
+// // // // // //       if (agent.id === "order-delivery") {
+// // // // // //         // Direct tracking
+// // // // // //         const { data } = await http.post("/api/ai/assistant", { 
+// // // // // //           message: "Track my order" 
+// // // // // //         });
+// // // // // //         setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
+// // // // // //       } else {
+// // // // // //         // Draft for other agents
+// // // // // //         const { data } = await http.post("/api/ai/draft", { agentType: agent.id });
+// // // // // //         setInput(data.message || agent.desc);
+// // // // // //         setMessages(prev => [...prev, { 
+// // // // // //           type: "bot", 
+// // // // // //           text: `Draft ready for ${agent.title}. Edit & Send.` 
+// // // // // //         }]);
+// // // // // //       }
 // // // // // //     } catch (err) {
-// // // // // //       console.error(err);
 // // // // // //       setInput(agent.desc);
-// // // // // //       toast.info("Draft loaded (fallback)");
+// // // // // //       toast.info("Using default prompt");
 // // // // // //     } finally {
 // // // // // //       setLoading(false);
 // // // // // //     }
 // // // // // //   };
 
-// // // // // //   // ================== SEND MESSAGE → REAL EXECUTION ==================
 // // // // // //   const sendMessage = async () => {
 // // // // // //     if (!input.trim() || loading) return;
 
@@ -244,47 +423,20 @@
 // // // // // //     setLoading(true);
 
 // // // // // //     try {
-// // // // // //       const { data } = await http.post("/api/ai/assistant", { 
-// // // // // //         message: userMessage 
-// // // // // //       });
-
-// // // // // //       setMessages(prev => [...prev, { 
-// // // // // //         type: "bot", 
-// // // // // //         text: data.reply 
-// // // // // //       }]);
+// // // // // //       const { data } = await http.post("/api/ai/assistant", { message: userMessage });
+// // // // // //       setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
 
 // // // // // //       if (data.action === "open_razorpay" && data.paymentData) {
 // // // // // //         openRazorpay(data.paymentData);
 // // // // // //       }
 // // // // // //     } catch (err) {
-// // // // // //       console.error(err);
-// // // // // //       toast.error("AI Assistant error");
-// // // // // //       setMessages(prev => [...prev, { 
-// // // // // //         type: "bot", 
-// // // // // //         text: "Something went wrong. Please try again." 
-// // // // // //       }]);
+// // // // // //       toast.error("AI error");
 // // // // // //     } finally {
 // // // // // //       setLoading(false);
 // // // // // //     }
 // // // // // //   };
 
-// // // // // //   const openRazorpay = (paymentData) => {
-// // // // // //     const script = document.createElement("script");
-// // // // // //     script.src = "https://checkout.razorpay.com/v1/checkout.js";
-// // // // // //     script.onload = () => {
-// // // // // //       const options = {
-// // // // // //         key: paymentData.key,
-// // // // // //         amount: paymentData.amount,
-// // // // // //         currency: "INR",
-// // // // // //         order_id: paymentData.order_id,
-// // // // // //         name: "Myntra Clone",
-// // // // // //         description: "AI Order",
-// // // // // //         handler: () => toast.success("✅ Payment Successful!"),
-// // // // // //       };
-// // // // // //       new window.Razorpay(options).open();
-// // // // // //     };
-// // // // // //     document.body.appendChild(script);
-// // // // // //   };
+// // // // // //   const openRazorpay = (paymentData) => { /* same as before */ };
 
 // // // // // //   return (
 // // // // // //     <div className={`chat-assistant ${isOpen ? 'open' : ''}`}>
@@ -296,14 +448,9 @@
 // // // // // //         <button className="close-btn" onClick={onClose}>✕</button>
 // // // // // //       </div>
 
-// // // // // //       {/* Agent Cards */}
 // // // // // //       <div className="agents-grid">
 // // // // // //         {AGENT_CARDS.map((agent) => (
-// // // // // //           <div
-// // // // // //             key={agent.id}
-// // // // // //             className="agent-card"
-// // // // // //             onClick={() => handleAgentClick(agent)}
-// // // // // //           >
+// // // // // //           <div key={agent.id} className="agent-card" onClick={() => handleAgentClick(agent)}>
 // // // // // //             <div className="agent-icon">{agent.icon}</div>
 // // // // // //             <div className="agent-content">
 // // // // // //               <h4>{agent.title}</h4>
@@ -313,36 +460,31 @@
 // // // // // //         ))}
 // // // // // //       </div>
 
-// // // // // //       {/* Messages */}
 // // // // // //       <div className="chat-messages">
 // // // // // //         {messages.map((msg, i) => (
-// // // // // //           <div key={i} className={`message ${msg.type}`}>
-// // // // // //             {msg.text}
-// // // // // //           </div>
+// // // // // //           <div key={i} className={`message ${msg.type}`}>{msg.text}</div>
 // // // // // //         ))}
-// // // // // //         {loading && <div className="message bot">Thinking...</div>}
+// // // // // //         {loading && <div className="message bot">Processing...</div>}
 // // // // // //       </div>
 
-// // // // // //       {/* Input */}
 // // // // // //       <div className="chat-input">
 // // // // // //         <input
 // // // // // //           value={input}
 // // // // // //           onChange={(e) => setInput(e.target.value)}
 // // // // // //           onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-// // // // // //           placeholder="Edit draft and press Send... (Hindi / English)"
+// // // // // //           placeholder="Type or edit message..."
 // // // // // //         />
-// // // // // //         <button 
-// // // // // //           onClick={sendMessage} 
-// // // // // //           disabled={loading || !input.trim()}
-// // // // // //         >
-// // // // // //           Send
-// // // // // //         </button>
+// // // // // //         <button onClick={sendMessage} disabled={loading || !input.trim()}>Send</button>
 // // // // // //       </div>
 // // // // // //     </div>
 // // // // // //   );
 // // // // // // };
 
 // // // // // // export default ChatAssistant;
+
+
+
+
 
 
 
@@ -370,10 +512,46 @@
 // // // // //     id: "size-advisor",
 // // // // //     icon: "📏",
 // // // // //     title: "Size Advisor",
-// // // // //     desc: "Size advisor for height 5'8\" weight 70kg",
+// // // // //     desc: "Height 5'8\" weight 70kg ke liye size batao",
 // // // // //   },
 // // // // //   {
-// // // // //     id: "order-delivery",
+// // // // //     id: "budget-shopper",
+// // // // //     icon: "💰",
+// // // // //     title: "Budget Shopper",
+// // // // //     desc: "Under 1500 mein best casual wear",
+// // // // //   },
+// // // // //   {
+// // // // //     id: "occasion-planner",
+// // // // //     icon: "🎉",
+// // // // //     title: "Occasion Planner",
+// // // // //     desc: "Ganesh Chaturthi ke liye traditional outfit",
+// // // // //   },
+// // // // //   {
+// // // // //     id: "wardrobe-assistant",
+// // // // //     icon: "👕",
+// // // // //     title: "Wardrobe Assistant",
+// // // // //     desc: "Mere paas blue jeans hai, uske saath kya pair karu",
+// // // // //   },
+// // // // //   {
+// // // // //     id: "trend-spotter",
+// // // // //     icon: "🔥",
+// // // // //     title: "Trend Spotter",
+// // // // //     desc: "Current summer trends mein kya chal raha hai",
+// // // // //   },
+// // // // //   {
+// // // // //     id: "outfit-completer",
+// // // // //     icon: "🧥",
+// // // // //     title: "Outfit Completer",
+// // // // //     desc: "White shirt ke saath best bottom suggest karo",
+// // // // //   },
+// // // // //   {
+// // // // //     id: "gift-suggester",
+// // // // //     icon: "🎁",
+// // // // //     title: "Gift Suggester",
+// // // // //     desc: "Girlfriend ke liye anniversary gift",
+// // // // //   },
+// // // // //   {
+// // // // //     id: "order-tracking",
 // // // // //     icon: "📦",
 // // // // //     title: "Order Tracking",
 // // // // //     desc: "Mera order kab tak aayega?",
@@ -387,26 +565,30 @@
 // // // // //   const [input, setInput] = useState("");
 // // // // //   const [loading, setLoading] = useState(false);
 
-// // // // //   // Draft for Agent Cards
+// // // // //   // Handle Agent Card Click
 // // // // //   const handleAgentClick = async (agent) => {
 // // // // //     setLoading(true);
 // // // // //     try {
-// // // // //       if (agent.id === "order-delivery") {
-// // // // //         // Direct tracking
+// // // // //       if (agent.id === "order-tracking") {
+// // // // //         // Direct tracking for order
 // // // // //         const { data } = await http.post("/api/ai/assistant", { 
 // // // // //           message: "Track my order" 
 // // // // //         });
 // // // // //         setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
 // // // // //       } else {
-// // // // //         // Draft for other agents
-// // // // //         const { data } = await http.post("/api/ai/draft", { agentType: agent.id });
+// // // // //         // Draft for all other agents
+// // // // //         const { data } = await http.post("/api/ai/draft", { 
+// // // // //           agentType: agent.id 
+// // // // //         });
+
 // // // // //         setInput(data.message || agent.desc);
 // // // // //         setMessages(prev => [...prev, { 
 // // // // //           type: "bot", 
-// // // // //           text: `Draft ready for ${agent.title}. Edit & Send.` 
+// // // // //           text: `✅ Draft ready for **${agent.title}**. Edit if needed and click Send.` 
 // // // // //         }]);
 // // // // //       }
 // // // // //     } catch (err) {
+// // // // //       console.error(err);
 // // // // //       setInput(agent.desc);
 // // // // //       toast.info("Using default prompt");
 // // // // //     } finally {
@@ -414,6 +596,7 @@
 // // // // //     }
 // // // // //   };
 
+// // // // //   // Send Message to AI
 // // // // //   const sendMessage = async () => {
 // // // // //     if (!input.trim() || loading) return;
 
@@ -423,20 +606,40 @@
 // // // // //     setLoading(true);
 
 // // // // //     try {
-// // // // //       const { data } = await http.post("/api/ai/assistant", { message: userMessage });
+// // // // //       const { data } = await http.post("/api/ai/assistant", { 
+// // // // //         message: userMessage 
+// // // // //       });
+
 // // // // //       setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
 
 // // // // //       if (data.action === "open_razorpay" && data.paymentData) {
 // // // // //         openRazorpay(data.paymentData);
 // // // // //       }
 // // // // //     } catch (err) {
-// // // // //       toast.error("AI error");
+// // // // //       console.error(err);
+// // // // //       toast.error("AI Assistant unavailable");
 // // // // //     } finally {
 // // // // //       setLoading(false);
 // // // // //     }
 // // // // //   };
 
-// // // // //   const openRazorpay = (paymentData) => { /* same as before */ };
+// // // // //   const openRazorpay = (paymentData) => {
+// // // // //     const script = document.createElement("script");
+// // // // //     script.src = "https://checkout.razorpay.com/v1/checkout.js";
+// // // // //     script.onload = () => {
+// // // // //       const options = {
+// // // // //         key: paymentData.key,
+// // // // //         amount: paymentData.amount,
+// // // // //         currency: "INR",
+// // // // //         order_id: paymentData.order_id,
+// // // // //         name: "Myntra Clone",
+// // // // //         description: "AI Order",
+// // // // //         handler: () => toast.success("✅ Payment Successful! Order Placed."),
+// // // // //       };
+// // // // //       new window.Razorpay(options).open();
+// // // // //     };
+// // // // //     document.body.appendChild(script);
+// // // // //   };
 
 // // // // //   return (
 // // // // //     <div className={`chat-assistant ${isOpen ? 'open' : ''}`}>
@@ -448,9 +651,14 @@
 // // // // //         <button className="close-btn" onClick={onClose}>✕</button>
 // // // // //       </div>
 
+// // // // //       {/* All Agent Cards */}
 // // // // //       <div className="agents-grid">
 // // // // //         {AGENT_CARDS.map((agent) => (
-// // // // //           <div key={agent.id} className="agent-card" onClick={() => handleAgentClick(agent)}>
+// // // // //           <div
+// // // // //             key={agent.id}
+// // // // //             className="agent-card"
+// // // // //             onClick={() => handleAgentClick(agent)}
+// // // // //           >
 // // // // //             <div className="agent-icon">{agent.icon}</div>
 // // // // //             <div className="agent-content">
 // // // // //               <h4>{agent.title}</h4>
@@ -460,21 +668,30 @@
 // // // // //         ))}
 // // // // //       </div>
 
+// // // // //       {/* Messages Area */}
 // // // // //       <div className="chat-messages">
 // // // // //         {messages.map((msg, i) => (
-// // // // //           <div key={i} className={`message ${msg.type}`}>{msg.text}</div>
+// // // // //           <div key={i} className={`message ${msg.type}`}>
+// // // // //             {msg.text}
+// // // // //           </div>
 // // // // //         ))}
-// // // // //         {loading && <div className="message bot">Processing...</div>}
+// // // // //         {loading && <div className="message bot">AI Agent is thinking...</div>}
 // // // // //       </div>
 
+// // // // //       {/* Input Area */}
 // // // // //       <div className="chat-input">
 // // // // //         <input
 // // // // //           value={input}
 // // // // //           onChange={(e) => setInput(e.target.value)}
 // // // // //           onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-// // // // //           placeholder="Type or edit message..."
+// // // // //           placeholder="Edit draft here and press Send..."
 // // // // //         />
-// // // // //         <button onClick={sendMessage} disabled={loading || !input.trim()}>Send</button>
+// // // // //         <button 
+// // // // //           onClick={sendMessage} 
+// // // // //           disabled={loading || !input.trim()}
+// // // // //         >
+// // // // //           Send
+// // // // //         </button>
 // // // // //       </div>
 // // // // //     </div>
 // // // // //   );
@@ -493,102 +710,42 @@
 // // // // import React, { useState } from "react";
 // // // // import http from "../api/http.js";
 // // // // import { toast } from "react-toastify";
-// // // // import "./ChatAssistant.css";
 
 // // // // const AGENT_CARDS = [
-// // // //   {
-// // // //     id: "chat-to-order",
-// // // //     icon: "🛍️",
-// // // //     title: "Chat to Order",
-// // // //     desc: "Nylon T Shirt for Men order kar do size M",
-// // // //   },
-// // // //   {
-// // // //     id: "personal-stylist",
-// // // //     icon: "👗",
-// // // //     title: "Personal Stylist",
-// // // //     desc: "Wedding ke liye outfit suggest karo",
-// // // //   },
-// // // //   {
-// // // //     id: "size-advisor",
-// // // //     icon: "📏",
-// // // //     title: "Size Advisor",
-// // // //     desc: "Height 5'8\" weight 70kg ke liye size batao",
-// // // //   },
-// // // //   {
-// // // //     id: "budget-shopper",
-// // // //     icon: "💰",
-// // // //     title: "Budget Shopper",
-// // // //     desc: "Under 1500 mein best casual wear",
-// // // //   },
-// // // //   {
-// // // //     id: "occasion-planner",
-// // // //     icon: "🎉",
-// // // //     title: "Occasion Planner",
-// // // //     desc: "Ganesh Chaturthi ke liye traditional outfit",
-// // // //   },
-// // // //   {
-// // // //     id: "wardrobe-assistant",
-// // // //     icon: "👕",
-// // // //     title: "Wardrobe Assistant",
-// // // //     desc: "Mere paas blue jeans hai, uske saath kya pair karu",
-// // // //   },
-// // // //   {
-// // // //     id: "trend-spotter",
-// // // //     icon: "🔥",
-// // // //     title: "Trend Spotter",
-// // // //     desc: "Current summer trends mein kya chal raha hai",
-// // // //   },
-// // // //   {
-// // // //     id: "outfit-completer",
-// // // //     icon: "🧥",
-// // // //     title: "Outfit Completer",
-// // // //     desc: "White shirt ke saath best bottom suggest karo",
-// // // //   },
-// // // //   {
-// // // //     id: "gift-suggester",
-// // // //     icon: "🎁",
-// // // //     title: "Gift Suggester",
-// // // //     desc: "Girlfriend ke liye anniversary gift",
-// // // //   },
-// // // //   {
-// // // //     id: "order-tracking",
-// // // //     icon: "📦",
-// // // //     title: "Order Tracking",
-// // // //     desc: "Mera order kab tak aayega?",
-// // // //   },
+// // // //   { id: "chat-to-order", icon: "🛍️", title: "Chat to Order", desc: "Nylon T Shirt order kar do size M" },
+// // // //   { id: "personal-stylist", icon: "👗", title: "Personal Stylist", desc: "Wedding ke liye outfit suggest karo" },
+// // // //   { id: "size-advisor", icon: "📏", title: "Size Advisor", desc: "Height 5'8\" weight 70kg ke liye size batao" },
+// // // //   { id: "budget-shopper", icon: "💰", title: "Budget Shopper", desc: "Under 1500 mein best items" },
+// // // //   { id: "occasion-planner", icon: "🎉", title: "Occasion Planner", desc: "Ganesh Chaturthi ke liye outfit" },
+// // // //   { id: "wardrobe-assistant", icon: "👕", title: "Wardrobe Assistant", desc: "Mere paas blue jeans hai..." },
+// // // //   { id: "trend-spotter", icon: "🔥", title: "Trend Spotter", desc: "Current summer trends" },
+// // // //   { id: "outfit-completer", icon: "🧥", title: "Outfit Completer", desc: "White shirt ke saath best match" },
+// // // //   { id: "gift-suggester", icon: "🎁", title: "Gift Suggester", desc: "Anniversary gift suggestions" },
+// // // //   { id: "order-tracking", icon: "📦", title: "Order Tracking", desc: "Mera order kab tak aayega?" },
 // // // // ];
 
 // // // // const ChatAssistant = ({ isOpen, onClose }) => {
 // // // //   const [messages, setMessages] = useState([
-// // // //     { type: "bot", text: "Hi! Click any agent card below or type your request." }
+// // // //     { type: "bot", text: "Hi! Click any agent card or type your request below 👇" }
 // // // //   ]);
 // // // //   const [input, setInput] = useState("");
 // // // //   const [loading, setLoading] = useState(false);
 
-// // // //   // Handle Agent Card Click
 // // // //   const handleAgentClick = async (agent) => {
 // // // //     setLoading(true);
 // // // //     try {
 // // // //       if (agent.id === "order-tracking") {
-// // // //         // Direct tracking for order
-// // // //         const { data } = await http.post("/api/ai/assistant", { 
-// // // //           message: "Track my order" 
-// // // //         });
+// // // //         const { data } = await http.post("/api/ai/assistant", { message: "Track my order" });
 // // // //         setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
 // // // //       } else {
-// // // //         // Draft for all other agents
-// // // //         const { data } = await http.post("/api/ai/draft", { 
-// // // //           agentType: agent.id 
-// // // //         });
-
+// // // //         const { data } = await http.post("/api/ai/draft", { agentType: agent.id });
 // // // //         setInput(data.message || agent.desc);
 // // // //         setMessages(prev => [...prev, { 
 // // // //           type: "bot", 
-// // // //           text: `✅ Draft ready for **${agent.title}**. Edit if needed and click Send.` 
+// // // //           text: `✅ Draft ready for **${agent.title}**. Edit if needed & click Send.` 
 // // // //         }]);
 // // // //       }
 // // // //     } catch (err) {
-// // // //       console.error(err);
 // // // //       setInput(agent.desc);
 // // // //       toast.info("Using default prompt");
 // // // //     } finally {
@@ -596,7 +753,6 @@
 // // // //     }
 // // // //   };
 
-// // // //   // Send Message to AI
 // // // //   const sendMessage = async () => {
 // // // //     if (!input.trim() || loading) return;
 
@@ -606,92 +762,96 @@
 // // // //     setLoading(true);
 
 // // // //     try {
-// // // //       const { data } = await http.post("/api/ai/assistant", { 
-// // // //         message: userMessage 
-// // // //       });
+// // // //       const { data } = await http.post("/api/ai/assistant", { message: userMessage });
 
 // // // //       setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
 
 // // // //       if (data.action === "open_razorpay" && data.paymentData) {
-// // // //         openRazorpay(data.paymentData);
+// // // //         // Razorpay logic
+// // // //         toast.success("Opening Razorpay...");
 // // // //       }
 // // // //     } catch (err) {
-// // // //       console.error(err);
 // // // //       toast.error("AI Assistant unavailable");
 // // // //     } finally {
 // // // //       setLoading(false);
 // // // //     }
 // // // //   };
 
-// // // //   const openRazorpay = (paymentData) => {
-// // // //     const script = document.createElement("script");
-// // // //     script.src = "https://checkout.razorpay.com/v1/checkout.js";
-// // // //     script.onload = () => {
-// // // //       const options = {
-// // // //         key: paymentData.key,
-// // // //         amount: paymentData.amount,
-// // // //         currency: "INR",
-// // // //         order_id: paymentData.order_id,
-// // // //         name: "Myntra Clone",
-// // // //         description: "AI Order",
-// // // //         handler: () => toast.success("✅ Payment Successful! Order Placed."),
-// // // //       };
-// // // //       new window.Razorpay(options).open();
-// // // //     };
-// // // //     document.body.appendChild(script);
-// // // //   };
-
 // // // //   return (
-// // // //     <div className={`chat-assistant ${isOpen ? 'open' : ''}`}>
-// // // //       <div className="chat-header">
-// // // //         <div>
-// // // //           <h3>🤖 AI Shopping Assistant</h3>
-// // // //           <p>One chat, Multiple Fashion Agents</p>
+// // // //     <div className={`fixed bottom-24 right-6 w-[420px] h-[620px] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden z-50 transition-all duration-300 ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}`}>
+
+// // // //       {/* Header */}
+// // // //       <div className="bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 text-white px-6 py-5 flex items-center justify-between">
+// // // //         <div className="flex items-center gap-3">
+// // // //           <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center text-3xl">🤖</div>
+// // // //           <div>
+// // // //             <h3 className="font-semibold text-lg">AI Shopping Assistant</h3>
+// // // //             <p className="text-xs opacity-75">Multiple Agents • Smart Help</p>
+// // // //           </div>
 // // // //         </div>
-// // // //         <button className="close-btn" onClick={onClose}>✕</button>
+// // // //         <button 
+// // // //           onClick={onClose}
+// // // //           className="w-9 h-9 hover:bg-white/20 rounded-xl flex items-center justify-center text-2xl transition"
+// // // //         >
+// // // //           ✕
+// // // //         </button>
 // // // //       </div>
 
-// // // //       {/* All Agent Cards */}
-// // // //       <div className="agents-grid">
+// // // //       {/* Agent Cards */}
+// // // //       <div className="p-5 grid grid-cols-2 gap-4 overflow-y-auto flex-1 bg-gray-50">
 // // // //         {AGENT_CARDS.map((agent) => (
 // // // //           <div
 // // // //             key={agent.id}
-// // // //             className="agent-card"
 // // // //             onClick={() => handleAgentClick(agent)}
+// // // //             className="bg-white p-5 rounded-2xl border border-gray-100 hover:border-violet-300 hover:shadow-lg cursor-pointer transition-all duration-200 group"
 // // // //           >
-// // // //             <div className="agent-icon">{agent.icon}</div>
-// // // //             <div className="agent-content">
-// // // //               <h4>{agent.title}</h4>
-// // // //               <p>{agent.desc}</p>
-// // // //             </div>
+// // // //             <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{agent.icon}</div>
+// // // //             <h4 className="font-semibold text-base mb-1">{agent.title}</h4>
+// // // //             <p className="text-sm text-gray-500 line-clamp-2">{agent.desc}</p>
 // // // //           </div>
 // // // //         ))}
 // // // //       </div>
 
 // // // //       {/* Messages Area */}
-// // // //       <div className="chat-messages">
+// // // //       <div className="flex-1 p-5 overflow-y-auto bg-gray-50 space-y-4">
 // // // //         {messages.map((msg, i) => (
-// // // //           <div key={i} className={`message ${msg.type}`}>
+// // // //           <div
+// // // //             key={i}
+// // // //             className={`max-w-[85%] px-5 py-3.5 rounded-3xl text-[15px] leading-relaxed ${
+// // // //               msg.type === "user" 
+// // // //                 ? "ml-auto bg-violet-600 text-white rounded-br-none" 
+// // // //                 : "mr-auto bg-white border border-gray-200 rounded-bl-none"
+// // // //             }`}
+// // // //           >
 // // // //             {msg.text}
 // // // //           </div>
 // // // //         ))}
-// // // //         {loading && <div className="message bot">AI Agent is thinking...</div>}
+// // // //         {loading && (
+// // // //           <div className="chat-message bot flex items-center gap-2">
+// // // //             <span className="animate-pulse">🤖</span>
+// // // //             <span>AI Agent is thinking...</span>
+// // // //           </div>
+// // // //         )}
 // // // //       </div>
 
 // // // //       {/* Input Area */}
-// // // //       <div className="chat-input">
-// // // //         <input
-// // // //           value={input}
-// // // //           onChange={(e) => setInput(e.target.value)}
-// // // //           onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-// // // //           placeholder="Edit draft here and press Send..."
-// // // //         />
-// // // //         <button 
-// // // //           onClick={sendMessage} 
-// // // //           disabled={loading || !input.trim()}
-// // // //         >
-// // // //           Send
-// // // //         </button>
+// // // //       <div className="p-4 border-t bg-white">
+// // // //         <div className="flex gap-3">
+// // // //           <input
+// // // //             value={input}
+// // // //             onChange={(e) => setInput(e.target.value)}
+// // // //             onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+// // // //             placeholder="Type your message or edit draft..."
+// // // //             className="flex-1 border border-gray-300 rounded-full px-6 py-4 focus:outline-none focus:border-violet-500 text-base"
+// // // //           />
+// // // //           <button
+// // // //             onClick={sendMessage}
+// // // //             disabled={!input.trim() || loading}
+// // // //             className="bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 text-white px-8 rounded-full font-semibold transition"
+// // // //           >
+// // // //             Send
+// // // //           </button>
+// // // //         </div>
 // // // //       </div>
 // // // //     </div>
 // // // //   );
@@ -702,12 +862,8 @@
 
 
 
-
-
-
-
 // // // // frontend/src/components/ChatAssistant.jsx
-// // // import React, { useState } from "react";
+// // // import React, { useState, useRef, useEffect } from "react";
 // // // import http from "../api/http.js";
 // // // import { toast } from "react-toastify";
 
@@ -730,24 +886,37 @@
 // // //   ]);
 // // //   const [input, setInput] = useState("");
 // // //   const [loading, setLoading] = useState(false);
+// // //   const [showCards, setShowCards] = useState(true); // Toggle between cards and chat
+// // //   const messagesEndRef = useRef(null);
+
+// // //   // Auto-scroll to bottom
+// // //   useEffect(() => {
+// // //     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+// // //   }, [messages]);
 
 // // //   const handleAgentClick = async (agent) => {
 // // //     setLoading(true);
+// // //     setShowCards(false);
+    
 // // //     try {
 // // //       if (agent.id === "order-tracking") {
 // // //         const { data } = await http.post("/api/ai/assistant", { message: "Track my order" });
 // // //         setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
 // // //       } else {
+// // //         // Get draft for the agent
 // // //         const { data } = await http.post("/api/ai/draft", { agentType: agent.id });
-// // //         setInput(data.message || agent.desc);
+// // //         const draftMessage = data.message || agent.desc;
+        
+// // //         setInput(draftMessage);
 // // //         setMessages(prev => [...prev, { 
 // // //           type: "bot", 
-// // //           text: `✅ Draft ready for **${agent.title}**. Edit if needed & click Send.` 
+// // //           text: `✅ **${agent.title}** draft ready. Edit if needed & click Send.` 
 // // //         }]);
 // // //       }
 // // //     } catch (err) {
+// // //       console.error("Agent click error:", err);
 // // //       setInput(agent.desc);
-// // //       toast.info("Using default prompt");
+// // //       toast.error("Could not load draft, using default");
 // // //     } finally {
 // // //       setLoading(false);
 // // //     }
@@ -764,60 +933,84 @@
 // // //     try {
 // // //       const { data } = await http.post("/api/ai/assistant", { message: userMessage });
 
+// // //       if (!data || !data.reply) {
+// // //         throw new Error("Invalid response from server");
+// // //       }
+
 // // //       setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
 
+// // //       // Handle Razorpay redirect
 // // //       if (data.action === "open_razorpay" && data.paymentData) {
-// // //         // Razorpay logic
-// // //         toast.success("Opening Razorpay...");
+// // //         setTimeout(() => {
+// // //           // Razorpay initialization logic here
+// // //           toast.success("Opening payment gateway...");
+// // //         }, 500);
 // // //       }
 // // //     } catch (err) {
-// // //       toast.error("AI Assistant unavailable");
+// // //       console.error("Send message error:", err);
+// // //       toast.error("Failed to send message. Please try again.");
+// // //       setMessages(prev => [...prev, { 
+// // //         type: "bot", 
+// // //         text: "Sorry, something went wrong. Please try again or select an agent." 
+// // //       }]);
 // // //     } finally {
 // // //       setLoading(false);
 // // //     }
 // // //   };
 
+// // //   const handleReset = () => {
+// // //     setMessages([{ type: "bot", text: "Hi! Click any agent card or type your request below 👇" }]);
+// // //     setInput("");
+// // //     setShowCards(true);
+// // //   };
+
 // // //   return (
-// // //     <div className={`fixed bottom-24 right-6 w-[420px] h-[620px] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden z-50 transition-all duration-300 ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}`}>
+// // //     <div className={`fixed bottom-24 right-6 w-[420px] h-[620px] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden z-50 transition-all duration-300 ${
+// // //       isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
+// // //     }`}>
 
 // // //       {/* Header */}
 // // //       <div className="bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 text-white px-6 py-5 flex items-center justify-between">
-// // //         <div className="flex items-center gap-3">
+// // //         <div className="flex items-center gap-3 flex-1">
 // // //           <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center text-3xl">🤖</div>
-// // //           <div>
+// // //           <div className="flex-1">
 // // //             <h3 className="font-semibold text-lg">AI Shopping Assistant</h3>
-// // //             <p className="text-xs opacity-75">Multiple Agents • Smart Help</p>
+// // //             <p className="text-xs opacity-75">Smart Recommendations</p>
 // // //           </div>
 // // //         </div>
 // // //         <button 
 // // //           onClick={onClose}
 // // //           className="w-9 h-9 hover:bg-white/20 rounded-xl flex items-center justify-center text-2xl transition"
+// // //           aria-label="Close chat"
 // // //         >
 // // //           ✕
 // // //         </button>
 // // //       </div>
 
-// // //       {/* Agent Cards */}
-// // //       <div className="p-5 grid grid-cols-2 gap-4 overflow-y-auto flex-1 bg-gray-50">
-// // //         {AGENT_CARDS.map((agent) => (
-// // //           <div
-// // //             key={agent.id}
-// // //             onClick={() => handleAgentClick(agent)}
-// // //             className="bg-white p-5 rounded-2xl border border-gray-100 hover:border-violet-300 hover:shadow-lg cursor-pointer transition-all duration-200 group"
-// // //           >
-// // //             <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{agent.icon}</div>
-// // //             <h4 className="font-semibold text-base mb-1">{agent.title}</h4>
-// // //             <p className="text-sm text-gray-500 line-clamp-2">{agent.desc}</p>
-// // //           </div>
-// // //         ))}
-// // //       </div>
+// // //       {/* Agent Cards Section */}
+// // //       {showCards && (
+// // //         <div className="p-5 grid grid-cols-2 gap-4 overflow-y-auto flex-1 bg-gray-50">
+// // //           {AGENT_CARDS.map((agent) => (
+// // //             <button
+// // //               key={agent.id}
+// // //               onClick={() => handleAgentClick(agent)}
+// // //               disabled={loading}
+// // //               className="bg-white p-5 rounded-2xl border border-gray-100 hover:border-violet-300 hover:shadow-lg hover:scale-105 cursor-pointer transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed text-left"
+// // //             >
+// // //               <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{agent.icon}</div>
+// // //               <h4 className="font-semibold text-base mb-1">{agent.title}</h4>
+// // //               <p className="text-sm text-gray-500 line-clamp-2">{agent.desc}</p>
+// // //             </button>
+// // //           ))}
+// // //         </div>
+// // //       )}
 
 // // //       {/* Messages Area */}
-// // //       <div className="flex-1 p-5 overflow-y-auto bg-gray-50 space-y-4">
+// // //       <div className="flex-1 p-5 overflow-y-auto bg-gray-50 space-y-4 flex flex-col">
 // // //         {messages.map((msg, i) => (
 // // //           <div
 // // //             key={i}
-// // //             className={`max-w-[85%] px-5 py-3.5 rounded-3xl text-[15px] leading-relaxed ${
+// // //             className={`max-w-[85%] px-5 py-3.5 rounded-3xl text-[15px] leading-relaxed break-words ${
 // // //               msg.type === "user" 
 // // //                 ? "ml-auto bg-violet-600 text-white rounded-br-none" 
 // // //                 : "mr-auto bg-white border border-gray-200 rounded-bl-none"
@@ -827,27 +1020,37 @@
 // // //           </div>
 // // //         ))}
 // // //         {loading && (
-// // //           <div className="chat-message bot flex items-center gap-2">
-// // //             <span className="animate-pulse">🤖</span>
-// // //             <span>AI Agent is thinking...</span>
+// // //           <div className="flex items-center gap-2 text-gray-600">
+// // //             <span className="animate-pulse text-xl">🤖</span>
+// // //             <span className="text-sm">AI Agent is thinking...</span>
 // // //           </div>
 // // //         )}
+// // //         <div ref={messagesEndRef} />
 // // //       </div>
 
 // // //       {/* Input Area */}
-// // //       <div className="p-4 border-t bg-white">
+// // //       <div className="p-4 border-t bg-white space-y-2">
+// // //         {!showCards && (
+// // //           <button
+// // //             onClick={handleReset}
+// // //             className="text-xs text-gray-500 hover:text-violet-600 transition"
+// // //           >
+// // //             ← Back to Agents
+// // //           </button>
+// // //         )}
 // // //         <div className="flex gap-3">
 // // //           <input
 // // //             value={input}
 // // //             onChange={(e) => setInput(e.target.value)}
-// // //             onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-// // //             placeholder="Type your message or edit draft..."
-// // //             className="flex-1 border border-gray-300 rounded-full px-6 py-4 focus:outline-none focus:border-violet-500 text-base"
+// // //             onKeyPress={(e) => e.key === "Enter" && !loading && sendMessage()}
+// // //             placeholder="Type message or edit draft..."
+// // //             disabled={loading}
+// // //             className="flex-1 border border-gray-300 rounded-full px-6 py-4 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-base disabled:bg-gray-100"
 // // //           />
 // // //           <button
 // // //             onClick={sendMessage}
 // // //             disabled={!input.trim() || loading}
-// // //             className="bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 text-white px-8 rounded-full font-semibold transition"
+// // //             className="bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 text-white px-8 rounded-full font-semibold transition active:scale-95"
 // // //           >
 // // //             Send
 // // //           </button>
@@ -858,6 +1061,8 @@
 // // // };
 
 // // // export default ChatAssistant;
+
+
 
 
 
@@ -897,25 +1102,37 @@
 // //   const handleAgentClick = async (agent) => {
 // //     setLoading(true);
 // //     setShowCards(false);
-    
+
 // //     try {
 // //       if (agent.id === "order-tracking") {
+// //         // /api/ai/assistant -> { reply, action?, paymentData? }
 // //         const { data } = await http.post("/api/ai/assistant", { message: "Track my order" });
 // //         setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
 // //       } else {
-// //         // Get draft for the agent
+// //         // /api/ai/draft -> { type, message, intent, success }
 // //         const { data } = await http.post("/api/ai/draft", { agentType: agent.id });
-// //         const draftMessage = data.message || agent.desc;
-        
+// //         const draftMessage = data?.message || agent.desc;
+
 // //         setInput(draftMessage);
-// //         setMessages(prev => [...prev, { 
-// //           type: "bot", 
-// //           text: `✅ **${agent.title}** draft ready. Edit if needed & click Send.` 
+// //         setMessages(prev => [...prev, {
+// //           type: "bot",
+// //           text: `✅ **${agent.title}** draft ready. Edit if needed & click Send.`
 // //         }]);
 // //       }
 // //     } catch (err) {
 // //       console.error("Agent click error:", err);
-// //       setInput(agent.desc);
+// //       // Controller's error fallbacks still return a usable `reply`/`message`,
+// //       // so prefer that over the static card description when available.
+// //       const serverText = err.response?.data?.reply || err.response?.data?.message;
+
+// //       if (agent.id === "order-tracking") {
+// //         setMessages(prev => [...prev, {
+// //           type: "bot",
+// //           text: serverText || "Sorry, couldn't fetch your order status. Please try again."
+// //         }]);
+// //       } else {
+// //         setInput(serverText || agent.desc);
+// //       }
 // //       toast.error("Could not load draft, using default");
 // //     } finally {
 // //       setLoading(false);
@@ -931,6 +1148,7 @@
 // //     setLoading(true);
 
 // //     try {
+// //       // /api/ai/assistant expects { message } and returns { reply, action?, paymentData? }
 // //       const { data } = await http.post("/api/ai/assistant", { message: userMessage });
 
 // //       if (!data || !data.reply) {
@@ -948,10 +1166,15 @@
 // //       }
 // //     } catch (err) {
 // //       console.error("Send message error:", err);
-// //       toast.error("Failed to send message. Please try again.");
-// //       setMessages(prev => [...prev, { 
-// //         type: "bot", 
-// //         text: "Sorry, something went wrong. Please try again or select an agent." 
+// //       // The controller still sends a JSON body with a `reply` field on
+// //       // non-2xx responses (401 "Please login first", 400 "Please provide
+// //       // a valid message.", 500 generic failure) — axios surfaces these as
+// //       // errors, so pull the real message back out instead of a generic one.
+// //       const serverReply = err.response?.data?.reply;
+// //       toast.error(serverReply || "Failed to send message. Please try again.");
+// //       setMessages(prev => [...prev, {
+// //         type: "bot",
+// //         text: serverReply || "Sorry, something went wrong. Please try again or select an agent."
 // //       }]);
 // //     } finally {
 // //       setLoading(false);
@@ -978,7 +1201,7 @@
 // //             <p className="text-xs opacity-75">Smart Recommendations</p>
 // //           </div>
 // //         </div>
-// //         <button 
+// //         <button
 // //           onClick={onClose}
 // //           className="w-9 h-9 hover:bg-white/20 rounded-xl flex items-center justify-center text-2xl transition"
 // //           aria-label="Close chat"
@@ -1011,8 +1234,8 @@
 // //           <div
 // //             key={i}
 // //             className={`max-w-[85%] px-5 py-3.5 rounded-3xl text-[15px] leading-relaxed break-words ${
-// //               msg.type === "user" 
-// //                 ? "ml-auto bg-violet-600 text-white rounded-br-none" 
+// //               msg.type === "user"
+// //                 ? "ml-auto bg-violet-600 text-white rounded-br-none"
 // //                 : "mr-auto bg-white border border-gray-200 rounded-bl-none"
 // //             }`}
 // //           >
@@ -1064,9 +1287,6 @@
 
 
 
-
-
-
 // // frontend/src/components/ChatAssistant.jsx
 // import React, { useState, useRef, useEffect } from "react";
 // import http from "../api/http.js";
@@ -1085,6 +1305,24 @@
 //   { id: "order-tracking", icon: "📦", title: "Order Tracking", desc: "Mera order kab tak aayega?" },
 // ];
 
+// // Load the Razorpay checkout.js script once and reuse it.
+// // Returns a promise that resolves to true/false.
+// let razorpayScriptPromise = null;
+// const loadRazorpayScript = () => {
+//   if (window.Razorpay) return Promise.resolve(true);
+
+//   if (!razorpayScriptPromise) {
+//     razorpayScriptPromise = new Promise((resolve) => {
+//       const script = document.createElement("script");
+//       script.src = "https://checkout.razorpay.com/v1/checkout.js";
+//       script.onload = () => resolve(true);
+//       script.onerror = () => resolve(false);
+//       document.body.appendChild(script);
+//     });
+//   }
+//   return razorpayScriptPromise;
+// };
+
 // const ChatAssistant = ({ isOpen, onClose }) => {
 //   const [messages, setMessages] = useState([
 //     { type: "bot", text: "Hi! Click any agent card or type your request below 👇" }
@@ -1098,6 +1336,72 @@
 //   useEffect(() => {
 //     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 //   }, [messages]);
+
+//   // Actually opens the Razorpay checkout popup using the paymentData
+//   // returned by the backend (instead of the old placeholder toast-only code).
+//   const openRazorpayCheckout = async (paymentData) => {
+//     if (!paymentData) {
+//       toast.error("Payment data missing. Please try again.");
+//       return;
+//     }
+
+//     const ok = await loadRazorpayScript();
+//     if (!ok) {
+//       toast.error("Could not load payment gateway. Check your internet connection.");
+//       return;
+//     }
+
+//     // Support a few possible field-name variants from the backend's
+//     // paymentAgent response so this doesn't silently break if naming differs.
+//     const key = paymentData.key || paymentData.keyId || paymentData.razorpayKey;
+//     const orderId = paymentData.orderId || paymentData.order_id || paymentData.id;
+//     const amount = paymentData.amount; // should already be in paise from backend
+//     const currency = paymentData.currency || "INR";
+
+//     if (!key || !orderId) {
+//       console.error("Incomplete Razorpay paymentData:", paymentData);
+//       toast.error("Payment setup incomplete. Please try again.");
+//       return;
+//     }
+
+//     const options = {
+//       key,
+//       amount,
+//       currency,
+//       order_id: orderId,
+//       name: paymentData.name || "Male Fashion",
+//       description: paymentData.description || "Order Payment",
+//       prefill: paymentData.prefill || {},
+//       notes: paymentData.notes || {},
+//       theme: { color: "#7c3aed" },
+//       handler: async function (response) {
+//         // response contains razorpay_payment_id, razorpay_order_id, razorpay_signature
+//         try {
+//           await http.post("/api/payments/verify", response);
+//           toast.success("Payment successful! 🎉");
+//           setMessages((prev) => [
+//             ...prev,
+//             { type: "bot", text: "✅ Payment received! Your order is confirmed." }
+//           ]);
+//         } catch (err) {
+//           console.error("Payment verify error:", err);
+//           toast.error("Payment captured but verification failed. We'll confirm shortly.");
+//         }
+//       },
+//       modal: {
+//         ondismiss: function () {
+//           toast.info("Payment cancelled.");
+//         },
+//       },
+//     };
+
+//     const rzp = new window.Razorpay(options);
+//     rzp.on("payment.failed", function (response) {
+//       console.error("Razorpay payment failed:", response.error);
+//       toast.error(response.error?.description || "Payment failed. Please try again.");
+//     });
+//     rzp.open();
+//   };
 
 //   const handleAgentClick = async (agent) => {
 //     setLoading(true);
@@ -1121,8 +1425,6 @@
 //       }
 //     } catch (err) {
 //       console.error("Agent click error:", err);
-//       // Controller's error fallbacks still return a usable `reply`/`message`,
-//       // so prefer that over the static card description when available.
 //       const serverText = err.response?.data?.reply || err.response?.data?.message;
 
 //       if (agent.id === "order-tracking") {
@@ -1148,7 +1450,6 @@
 //     setLoading(true);
 
 //     try {
-//       // /api/ai/assistant expects { message } and returns { reply, action?, paymentData? }
 //       const { data } = await http.post("/api/ai/assistant", { message: userMessage });
 
 //       if (!data || !data.reply) {
@@ -1157,19 +1458,12 @@
 
 //       setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
 
-//       // Handle Razorpay redirect
+//       // Actually open the Razorpay popup now (previously this was just a toast).
 //       if (data.action === "open_razorpay" && data.paymentData) {
-//         setTimeout(() => {
-//           // Razorpay initialization logic here
-//           toast.success("Opening payment gateway...");
-//         }, 500);
+//         await openRazorpayCheckout(data.paymentData);
 //       }
 //     } catch (err) {
 //       console.error("Send message error:", err);
-//       // The controller still sends a JSON body with a `reply` field on
-//       // non-2xx responses (401 "Please login first", 400 "Please provide
-//       // a valid message.", 500 generic failure) — axios surfaces these as
-//       // errors, so pull the real message back out instead of a generic one.
 //       const serverReply = err.response?.data?.reply;
 //       toast.error(serverReply || "Failed to send message. Please try again.");
 //       setMessages(prev => [...prev, {
@@ -1286,31 +1580,41 @@
 // export default ChatAssistant;
 
 
-
 // frontend/src/components/ChatAssistant.jsx
 import React, { useState, useRef, useEffect } from "react";
 import http from "../api/http.js";
 import { toast } from "react-toastify";
 
-const AGENT_CARDS = [
-  { id: "chat-to-order", icon: "🛍️", title: "Chat to Order", desc: "Nylon T Shirt order kar do size M" },
-  { id: "personal-stylist", icon: "👗", title: "Personal Stylist", desc: "Wedding ke liye outfit suggest karo" },
-  { id: "size-advisor", icon: "📏", title: "Size Advisor", desc: "Height 5'8\" weight 70kg ke liye size batao" },
-  { id: "budget-shopper", icon: "💰", title: "Budget Shopper", desc: "Under 1500 mein best items" },
-  { id: "occasion-planner", icon: "🎉", title: "Occasion Planner", desc: "Ganesh Chaturthi ke liye outfit" },
-  { id: "wardrobe-assistant", icon: "👕", title: "Wardrobe Assistant", desc: "Mere paas blue jeans hai..." },
-  { id: "trend-spotter", icon: "🔥", title: "Trend Spotter", desc: "Current summer trends" },
-  { id: "outfit-completer", icon: "🧥", title: "Outfit Completer", desc: "White shirt ke saath best match" },
-  { id: "gift-suggester", icon: "🎁", title: "Gift Suggester", desc: "Anniversary gift suggestions" },
-  { id: "order-tracking", icon: "📦", title: "Order Tracking", desc: "Mera order kab tak aayega?" },
+/**
+ * Design language: "Atelier" — editorial fashion-app feel.
+ * Palette: Ink #1C1B1A, Ivory #F7F3EC, Gold #B9893F, Clay #E7DDC9, White #FFFFFF
+ * Display face: Fraunces (serif, characterful) — used sparingly for titles.
+ * Body face: Inter — clean, neutral, does the talking.
+ * Signature: price-tag notch on bot bubbles + gold hairline rule under header.
+ *
+ * Add once in index.html / global CSS:
+ * <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+ */
+
+const FEATURED = [
+  { id: "personal-stylist", icon: "👗", title: "Get Outfit Ideas", desc: "Wedding ke liye outfit suggest karo" },
+  { id: "chat-to-order", icon: "🛍️", title: "Order via Chat", desc: "Nylon T-Shirt order kar do, size M" },
+  { id: "gift-suggester", icon: "🎁", title: "Gift Suggestions", desc: "Anniversary gift suggestions" },
 ];
 
-// Load the Razorpay checkout.js script once and reuse it.
-// Returns a promise that resolves to true/false.
+const QUICK_ACTIONS = [
+  { id: "size-advisor", icon: "📏", title: "Find My Size" },
+  { id: "budget-shopper", icon: "💰", title: "Budget Shopping" },
+  { id: "occasion-planner", icon: "🎉", title: "Shop by Occasion" },
+  { id: "wardrobe-assistant", icon: "👕", title: "Style My Wardrobe" },
+  { id: "order-tracking", icon: "📦", title: "Track My Order" },
+];
+
+const ALL_AGENTS = [...FEATURED, ...QUICK_ACTIONS];
+
 let razorpayScriptPromise = null;
 const loadRazorpayScript = () => {
   if (window.Razorpay) return Promise.resolve(true);
-
   if (!razorpayScriptPromise) {
     razorpayScriptPromise = new Promise((resolve) => {
       const script = document.createElement("script");
@@ -1325,37 +1629,30 @@ const loadRazorpayScript = () => {
 
 const ChatAssistant = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([
-    { type: "bot", text: "Hi! Click any agent card or type your request below 👇" }
+    { type: "bot", text: "Hi! Main aapki shopping assistant hoon — kuch dhundna hai? 👇" }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showCards, setShowCards] = useState(true); // Toggle between cards and chat
+  const [showCards, setShowCards] = useState(true);
   const messagesEndRef = useRef(null);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Actually opens the Razorpay checkout popup using the paymentData
-  // returned by the backend (instead of the old placeholder toast-only code).
   const openRazorpayCheckout = async (paymentData) => {
     if (!paymentData) {
       toast.error("Payment data missing. Please try again.");
       return;
     }
-
     const ok = await loadRazorpayScript();
     if (!ok) {
       toast.error("Could not load payment gateway. Check your internet connection.");
       return;
     }
-
-    // Support a few possible field-name variants from the backend's
-    // paymentAgent response so this doesn't silently break if naming differs.
     const key = paymentData.key || paymentData.keyId || paymentData.razorpayKey;
     const orderId = paymentData.orderId || paymentData.order_id || paymentData.id;
-    const amount = paymentData.amount; // should already be in paise from backend
+    const amount = paymentData.amount;
     const currency = paymentData.currency || "INR";
 
     if (!key || !orderId) {
@@ -1373,15 +1670,14 @@ const ChatAssistant = ({ isOpen, onClose }) => {
       description: paymentData.description || "Order Payment",
       prefill: paymentData.prefill || {},
       notes: paymentData.notes || {},
-      theme: { color: "#7c3aed" },
+      theme: { color: "#B9893F" },
       handler: async function (response) {
-        // response contains razorpay_payment_id, razorpay_order_id, razorpay_signature
         try {
           await http.post("/api/payments/verify", response);
           toast.success("Payment successful! 🎉");
           setMessages((prev) => [
             ...prev,
-            { type: "bot", text: "✅ Payment received! Your order is confirmed." }
+            { type: "bot", text: "Payment received — order confirmed. ✅" }
           ]);
         } catch (err) {
           console.error("Payment verify error:", err);
@@ -1409,31 +1705,29 @@ const ChatAssistant = ({ isOpen, onClose }) => {
 
     try {
       if (agent.id === "order-tracking") {
-        // /api/ai/assistant -> { reply, action?, paymentData? }
         const { data } = await http.post("/api/ai/assistant", { message: "Track my order" });
-        setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
+        setMessages((prev) => [...prev, { type: "bot", text: data.reply }]);
       } else {
-        // /api/ai/draft -> { type, message, intent, success }
         const { data } = await http.post("/api/ai/draft", { agentType: agent.id });
-        const draftMessage = data?.message || agent.desc;
+        const draftMessage = data?.message || agent.desc || agent.title;
 
         setInput(draftMessage);
-        setMessages(prev => [...prev, {
-          type: "bot",
-          text: `✅ **${agent.title}** draft ready. Edit if needed & click Send.`
-        }]);
+        setMessages((prev) => [
+          ...prev,
+          { type: "bot", text: `"${agent.title}" ready — edit if needed & send. ✨` }
+        ]);
       }
     } catch (err) {
       console.error("Agent click error:", err);
       const serverText = err.response?.data?.reply || err.response?.data?.message;
 
       if (agent.id === "order-tracking") {
-        setMessages(prev => [...prev, {
-          type: "bot",
-          text: serverText || "Sorry, couldn't fetch your order status. Please try again."
-        }]);
+        setMessages((prev) => [
+          ...prev,
+          { type: "bot", text: serverText || "Couldn't fetch your order status. Try again?" }
+        ]);
       } else {
-        setInput(serverText || agent.desc);
+        setInput(serverText || agent.desc || agent.title);
       }
       toast.error("Could not load draft, using default");
     } finally {
@@ -1445,20 +1739,16 @@ const ChatAssistant = ({ isOpen, onClose }) => {
     if (!input.trim() || loading) return;
 
     const userMessage = input.trim();
-    setMessages(prev => [...prev, { type: "user", text: userMessage }]);
+    setMessages((prev) => [...prev, { type: "user", text: userMessage }]);
     setInput("");
     setLoading(true);
 
     try {
       const { data } = await http.post("/api/ai/assistant", { message: userMessage });
+      if (!data || !data.reply) throw new Error("Invalid response from server");
 
-      if (!data || !data.reply) {
-        throw new Error("Invalid response from server");
-      }
+      setMessages((prev) => [...prev, { type: "bot", text: data.reply }]);
 
-      setMessages(prev => [...prev, { type: "bot", text: data.reply }]);
-
-      // Actually open the Razorpay popup now (previously this was just a toast).
       if (data.action === "open_razorpay" && data.paymentData) {
         await openRazorpayCheckout(data.paymentData);
       }
@@ -1466,108 +1756,155 @@ const ChatAssistant = ({ isOpen, onClose }) => {
       console.error("Send message error:", err);
       const serverReply = err.response?.data?.reply;
       toast.error(serverReply || "Failed to send message. Please try again.");
-      setMessages(prev => [...prev, {
-        type: "bot",
-        text: serverReply || "Sorry, something went wrong. Please try again or select an agent."
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        { type: "bot", text: serverReply || "Something went wrong — try again or pick an action below." }
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
   const handleReset = () => {
-    setMessages([{ type: "bot", text: "Hi! Click any agent card or type your request below 👇" }]);
+    setMessages([{ type: "bot", text: "Hi! Main aapki shopping assistant hoon — kuch dhundna hai? 👇" }]);
     setInput("");
     setShowCards(true);
   };
 
   return (
-    <div className={`fixed bottom-24 right-6 w-[420px] h-[620px] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden z-50 transition-all duration-300 ${
-      isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
-    }`}>
-
+    <div
+      className={`fixed bottom-24 right-6 w-[420px] h-[640px] bg-[#F7F3EC] rounded-[28px] shadow-[0_30px_60px_-15px_rgba(28,27,26,0.35)] flex flex-col overflow-hidden z-50 transition-all duration-300 border border-[#E7DDC9] ${
+        isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
+      }`}
+    >
       {/* Header */}
-      <div className="bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 text-white px-6 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3 flex-1">
-          <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center text-3xl">🤖</div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-lg">AI Shopping Assistant</h3>
-            <p className="text-xs opacity-75">Smart Recommendations</p>
+      <div className="relative bg-[#1C1B1A] text-[#F7F3EC] px-6 py-5 flex items-center justify-between">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="w-11 h-11 rounded-full bg-[#B9893F]/15 border border-[#B9893F]/40 flex items-center justify-center text-2xl flex-shrink-0">
+            🛍️
+          </div>
+          <div className="min-w-0">
+            <h3
+              className="text-[19px] leading-tight tracking-tight truncate"
+              style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
+            >
+              Style Concierge
+            </h3>
+            <p className="text-[11px] tracking-[0.12em] uppercase text-[#B9893F] mt-0.5">
+              Personal Shopping, Curated
+            </p>
           </div>
         </div>
         <button
           onClick={onClose}
-          className="w-9 h-9 hover:bg-white/20 rounded-xl flex items-center justify-center text-2xl transition"
           aria-label="Close chat"
+          className="w-9 h-9 hover:bg-white/10 rounded-full flex items-center justify-center text-xl transition flex-shrink-0"
         >
           ✕
         </button>
+        {/* Gold hairline signature */}
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#B9893F] via-[#E7DDC9] to-[#B9893F]" />
       </div>
 
       {/* Agent Cards Section */}
       {showCards && (
-        <div className="p-5 grid grid-cols-2 gap-4 overflow-y-auto flex-1 bg-gray-50">
-          {AGENT_CARDS.map((agent) => (
-            <button
-              key={agent.id}
-              onClick={() => handleAgentClick(agent)}
-              disabled={loading}
-              className="bg-white p-5 rounded-2xl border border-gray-100 hover:border-violet-300 hover:shadow-lg hover:scale-105 cursor-pointer transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed text-left"
-            >
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{agent.icon}</div>
-              <h4 className="font-semibold text-base mb-1">{agent.title}</h4>
-              <p className="text-sm text-gray-500 line-clamp-2">{agent.desc}</p>
-            </button>
-          ))}
+        <div className="px-5 pt-5 pb-2 overflow-y-auto flex-1">
+          <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#1C1B1A]/50 mb-3 px-1">
+            Featured
+          </p>
+          <div className="grid grid-cols-1 gap-2.5 mb-5">
+            {FEATURED.map((agent) => (
+              <button
+                key={agent.id}
+                onClick={() => handleAgentClick(agent)}
+                disabled={loading}
+                className="relative bg-white pl-5 pr-4 py-4 rounded-2xl border border-[#E7DDC9] hover:border-[#B9893F] hover:shadow-md transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed text-left flex items-center gap-4"
+              >
+                <span className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-[#B9893F] scale-y-0 group-hover:scale-y-100 transition-transform origin-center" />
+                <span className="text-2xl flex-shrink-0">{agent.icon}</span>
+                <span className="min-w-0">
+                  <span className="block font-semibold text-[15px] text-[#1C1B1A]">{agent.title}</span>
+                  <span className="block text-[12.5px] text-[#1C1B1A]/55 truncate">{agent.desc}</span>
+                </span>
+                <span className="ml-auto text-[#B9893F] opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+              </button>
+            ))}
+          </div>
+
+          <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#1C1B1A]/50 mb-3 px-1">
+            Quick Actions
+          </p>
+          <div className="grid grid-cols-2 gap-2.5 pb-2">
+            {QUICK_ACTIONS.map((agent) => (
+              <button
+                key={agent.id}
+                onClick={() => handleAgentClick(agent)}
+                disabled={loading}
+                className="bg-white px-4 py-3.5 rounded-xl border border-[#E7DDC9] hover:border-[#B9893F] hover:shadow-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-left"
+              >
+                <div className="text-lg mb-1">{agent.icon}</div>
+                <div className="font-medium text-[13px] text-[#1C1B1A] leading-snug">{agent.title}</div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
       {/* Messages Area */}
-      <div className="flex-1 p-5 overflow-y-auto bg-gray-50 space-y-4 flex flex-col">
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`max-w-[85%] px-5 py-3.5 rounded-3xl text-[15px] leading-relaxed break-words ${
-              msg.type === "user"
-                ? "ml-auto bg-violet-600 text-white rounded-br-none"
-                : "mr-auto bg-white border border-gray-200 rounded-bl-none"
-            }`}
-          >
-            {msg.text}
-          </div>
-        ))}
-        {loading && (
-          <div className="flex items-center gap-2 text-gray-600">
-            <span className="animate-pulse text-xl">🤖</span>
-            <span className="text-sm">AI Agent is thinking...</span>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+      {!showCards && (
+        <div className="flex-1 px-5 py-4 overflow-y-auto space-y-3 flex flex-col">
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={`max-w-[82%] px-4 py-3 text-[14.5px] leading-relaxed break-words ${
+                msg.type === "user"
+                  ? "ml-auto bg-[#1C1B1A] text-[#F7F3EC] rounded-2xl rounded-br-sm"
+                  : "mr-auto bg-white border border-[#E7DDC9] rounded-2xl rounded-bl-sm relative"
+              }`}
+            >
+              {msg.type === "bot" && (
+                <span className="absolute -left-1.5 top-3 w-3 h-3 bg-white border-l border-b border-[#E7DDC9] rotate-45" />
+              )}
+              {msg.text}
+            </div>
+          ))}
+          {loading && (
+            <div className="flex items-center gap-2 text-[#1C1B1A]/50 text-[13px] mr-auto">
+              <span className="flex gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B9893F] animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B9893F] animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B9893F] animate-bounce" />
+              </span>
+              <span>curating a reply...</span>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      )}
 
       {/* Input Area */}
-      <div className="p-4 border-t bg-white space-y-2">
+      <div className="px-4 pt-3 pb-4 border-t border-[#E7DDC9] bg-[#F7F3EC] space-y-2">
         {!showCards && (
           <button
             onClick={handleReset}
-            className="text-xs text-gray-500 hover:text-violet-600 transition"
+            className="text-[12px] text-[#1C1B1A]/50 hover:text-[#B9893F] transition tracking-wide"
           >
-            ← Back to Agents
+            ← Back to actions
           </button>
         )}
-        <div className="flex gap-3">
+        <div className="flex gap-2.5">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && !loading && sendMessage()}
-            placeholder="Type message or edit draft..."
+            placeholder="Ask anything, in your own words..."
             disabled={loading}
-            className="flex-1 border border-gray-300 rounded-full px-6 py-4 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-base disabled:bg-gray-100"
+            className="flex-1 bg-white border border-[#E7DDC9] rounded-full px-5 py-3.5 focus:outline-none focus:border-[#B9893F] focus:ring-2 focus:ring-[#B9893F]/15 text-[14.5px] disabled:bg-[#F0EBE0] placeholder:text-[#1C1B1A]/35"
           />
           <button
             onClick={sendMessage}
             disabled={!input.trim() || loading}
-            className="bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 text-white px-8 rounded-full font-semibold transition active:scale-95"
+            className="bg-[#1C1B1A] hover:bg-[#2c2a28] disabled:bg-[#1C1B1A]/25 text-[#F7F3EC] px-6 rounded-full font-medium text-[14px] transition active:scale-95 flex-shrink-0"
           >
             Send
           </button>
